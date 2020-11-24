@@ -24,8 +24,8 @@ drawFig () {
 	sed 's/@/177/g' -i annot.txt
 
 	num=$1
-	python /data/pros/graphlan/graphlan_annotate.py --annot annot.txt draw_cstm_mtphlan meta_gralan.xml
-	python /data/pros/graphlan/graphlan.py meta_gralan.xml cst_mtphlan${num}.png --dpi 300 --size 8
+	graphlan_annotate.py --annot annot.txt draw_cstm_mtphlan meta_gralan.xml
+	graphlan.py meta_gralan.xml cst_mtphlan${num}.png --dpi 300 --size 8
 
 }
 
@@ -61,6 +61,7 @@ ringProcess () {
 
 		awk '$2>0' ${groupIn}.txt | awk -v OFS='\t' -v rng=$"${ringNo}" -v rngTpe="${ringType}" -v seqT="${seqTot}" -v scale="${scaleVal}" '{print $1,rngTpe,rng,scale*$2/seqT}' >> annot.txt
 
+	## ring_alpha is for box type
 	elif [[ "${ringType}" == "ring_alpha" ]]; then
 
 #		printf "ring_label_font_size\t%s\t15\n" "${ringNo}" >> annot.txt
@@ -78,11 +79,17 @@ ringProcess () {
 ##		echo -e ring_label'\t'${ringNo}'\t'$(echo ${group} | sed 's/_/ /g') >> annot.txt
 
 		awk '$2>0' ${groupIn}.txt | awk -v OFS='\t' -v rng=$"${ringNo}" -v rngTpe="${ringType}" '{print $1,rngTpe,rng,1}' >> annot.txt
+		## Create pin to rings
+		if (( ${ringNo} % 3 == 0 )) ; then
+			awk '$2>0' ${groupIn}.txt | awk -v OFS='\t' -v rng=$"${ringNo}" -v rngTpe="${ringType}" '{print $1,"ring_shape",rng,"^"}' >> annot.txt
+		elif (( ${ringNo} % 2 != 0 )) ; then
+			awk '$2>0' ${groupIn}.txt | awk -v OFS='\t' -v rng=$"${ringNo}" -v rngTpe="${ringType}" '{print $1,"ring_shape",rng,"v"}' >> annot.txt
+		fi
 #		awk '$2>0' ${groupIn}.txt | awk -v OFS='\t' -v rng=$"${ringNo}" -v rngTpe="${ringType}" -v seqT="${seqTot}" -v scale="${scaleVal}" '{print $1,rngTpe,rng,scale*$2/seqT}' >> annot.txt
 	fi
 }
 
-prepRings () {
+prepRingType () {
 
 	## Note the input file in the first place.
 	## Box rings
@@ -159,28 +166,34 @@ cladeColors () {
 ringPrepare () {
 
 	## Ring setting
-
+	## Using box file input
 	awk 'BEGIN{FS=OFS="\t"} NR==1{print} NR>1{for (i=1;i<=NF;i++) a[i]+=$i} END {for (i=1;i<=NF;i++) printf a[i] OFS; printf "\n"}' $box | cut -f3- | awk '{ for (i=1; i<=NF; i++) RtoC[i]= (RtoC[i]? RtoC[i] FS $i: $i) } END{ for (i in RtoC) print RtoC[i],"box" }' | sort -n -k2 > ring_cnt
 
+	## Using bar file input
 	awk 'BEGIN{FS=OFS="\t"} NR==1{print} NR>1{for (i=1;i<=NF;i++) a[i]+=$i} END {for (i=1;i<=NF;i++) printf a[i] OFS; printf "\n"}' $bar | cut -f3- | awk '{ for (i=1; i<=NF; i++) RtoC[i]= (RtoC[i]? RtoC[i] FS $i: $i) } END{ for (i in RtoC) print RtoC[i],"bar" }' | sort -n -k2 >> ring_cnt
 
 }
 
 ringDraw () {
 
+	## Create the position of the rings
+	## NR, No. of contigs, Name, Ring type
 	awk '{print NR,$2,$1,$3}' ring_cnt > fin_rings
 
 	lineNum=$(wc -l fin_rings | awk '{print $1}')
 	echo -n | tee all_rings_tax 
 	while read -r ring tot group type; do
-		## The last bar ring will have larger gap
+		## The last bar ring will have larger gap aka custom settings
 		if [[ "${ring}" != "${lineNum}" ]]; then
-			prepRings
+			prepRingType
 		else
+			## The outter ing setting
+			## Set up ring width and height
 			printf "ring_width\t%s\t0.5\n" "${ring}" >> annot.txt
 			printf "ring_height\t%s\t3.1\n" "${ring}" >> annot.txt
 
 			## print column values based on group 
+			## Input bar file, ring type, scale facto, ring_height, ring 
 			ringProcess ${bar} ${group} 3 ring_height ${ring}
 			cat  ${group}.txt >> all_rings_tax
 
@@ -222,12 +235,12 @@ tot=$(cut -d, -f 1 cnt_species | sort | uniq -c | awk '{SUM+=$1} END {print SUM}
 wc -l cnt_species
 
 bareCircle
-#cladeColors
-#ringPrepare
-#ringDraw
-#genusLabel
+cladeColors
+ringPrepare
+ringDraw
+genusLabel
 
-#drawFig 4
+drawFig 4
 
 ###awk 'BEGIN {s = 3; e = 5; } { for (i=s; i<=e; i++) printf("%s%s", $(i), i<e ? OFS : "\n"); }' contig_info_overall
 ###awk '{ for (i=3; i<=5; i++) printf("%s%s", $(i), i<e ? OFS : "\n"); }' contig_info_overall
