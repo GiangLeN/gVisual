@@ -1,0 +1,6 @@
+name: gralanEnv
+channels:
+  - bioconda
+dependencies:
+  - graphlan
+
