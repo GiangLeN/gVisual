@@ -1,4 +1,5 @@
-k_Bacteria,p_Proteobacteria #00bfff
-k_Bacteria,p_Firmicutes #ff3333
-k_Bacteria,p_Actinobacteria #29cc36
-k_Bacteria,p_Bacteroidetes #cc8d27
+k_Bacteria,p_Actinobacteria #42B540FF
+k_Bacteria,p_Bacteroidetes #ED0000FF
+k_Bacteria,p_Firmicutes #ADB6B6FF
+k_Bacteria,p_Proteobacteria #FDAF91FF
+k_Bacteria,p_Spirochaetes #925E9FFF
