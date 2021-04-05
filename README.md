@@ -18,4 +18,6 @@ Add other figures
 microViz figures
 CAZy figures
 Others
+Python figures
+More to come
 
