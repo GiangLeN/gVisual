@@ -6,6 +6,7 @@
 - Cicular taxonomic figure
 
 
+
 Added environment
 
 
@@ -14,5 +15,7 @@ Added environment
 Add other stuffs
 R scripts
 Add other figures
-
+microViz figures
+CAZy figures
+Others
 
