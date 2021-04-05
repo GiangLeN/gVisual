@@ -1,9 +1,9 @@
-# gVisual
+#gVisual
 
 ## Visualisation
 
 ### Graphlan
-Stay tune
+Cicular taxonomic figure
 
 
 Added environment
