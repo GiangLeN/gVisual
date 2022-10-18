@@ -1,12 +1,15 @@
 #!/bin/bash
 cat /dev/null > annot.txt
+
+# Plot 360 means no ring gap annotation
 echo -e total_plotted_degrees'\t'360 > annot.txt
 echo -e start_rotation'\t'@ >> annot.txt
 
+# Thickness of the branch
 echo -e branch_thickness'\t'1.6 >> annot.txt
-##for moving bracket back 
+# Length of bracket 
 echo -e branch_bracket_depth'\t'.4 >> annot.txt
-##curve the branch. closer to 0 more circular
+# curve the branch. closer to 0 more straight. > 0 means branch open wider
 echo -e branch_bracket_width'\t'0.1  >> annot.txt
 
 ##annotation on the left
